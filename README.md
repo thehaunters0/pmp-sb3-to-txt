@@ -42,7 +42,7 @@ End
 
 ## Install
 
-Download `pmp_to_txt.py` (use the green **Code** button, then **Download ZIP**, or just save the file). Put it anywhere. You can keep it next to your projects or run it from any folder.
+Download `pmp_to_txt.py` (Download the release or use the green **Code** button, then **Download ZIP**). Put it anywhere. You can keep it next to your projects or run it from any folder.
 
 ## Usage
 
