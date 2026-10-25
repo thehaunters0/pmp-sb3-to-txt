@@ -1,0 +1,26 @@
+name: Attach zip to release
+
+# Runs when you publish a release on GitHub. It builds pmp-to-txt.zip
+# (just pmp_to_txt.py and convert.bat) and attaches it to that release.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Build zip
+        run: zip pmp-to-txt.zip pmp_to_txt.py convert.bat
+
+      - name: Upload to the release
+        run: gh release upload "${{ github.event.release.tag_name }}" pmp-to-txt.zip --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
