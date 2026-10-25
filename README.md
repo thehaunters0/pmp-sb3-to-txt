@@ -42,7 +42,11 @@ End
 
 ## Install
 
-Download `pmp_to_txt.py` (use the green **Code** button, then **Download ZIP**, or just save the file). Put it anywhere. You can keep it next to your projects or run it from any folder.
+1. Go to the [**Releases**](../../releases/latest) page of this repo.
+2. Under **Assets**, download **`pmp-to-txt.zip`**, which contains `convert.bat` and `pmp_to_txt.py`. **Don't pick "Source code"**, since that is the whole repo and has extra files you don't need.
+3. Unzip it anywhere. Keep the two files together in the same folder.
+
+You can keep the folder next to your projects or run it from any location.
 
 ## Usage
 
