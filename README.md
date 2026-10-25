@@ -42,7 +42,7 @@ End
 
 ## Install
 
-Download `pmp_to_txt.py` (Download the release or use the green **Code** button, then **Download ZIP**). Put it anywhere. You can keep it next to your projects or run it from any folder.
+Download `pmp_to_txt.py` (use the green **Code** button, then **Download ZIP**, or just save the file). Put it anywhere. You can keep it next to your projects or run it from any folder.
 
 ## Usage
 
@@ -62,9 +62,18 @@ On some systems the command is `python3` or `py` instead of `python`.
 python pmp_to_txt.py "My Game v1.2.pmp"
 ```
 
-**No terminal typing:** run `python pmp_to_txt.py` with no file name and a window opens where you pick the project.
+**No terminal typing:** see [Double-click](#double-click-windows) below, or run `python pmp_to_txt.py` with no file name and a window opens where you pick the project.
 
 **Tip:** type `python pmp_to_txt.py ` (with a trailing space), then drag your project file into the terminal window. It pastes the full path for you.
+
+### Double-click (Windows)
+
+Keep `convert.bat` in the same folder as `pmp_to_txt.py`.
+
+- **Double-click `convert.bat`**, pick your project in the window that opens, and the `.txt` appears next to it.
+- **Or drag your `.pmp` / `.sb3` onto `convert.bat`.** You can drop several at once.
+
+The window stays open at the end so you can read any message. If it says Python wasn't found, install it from [python.org](https://www.python.org/downloads/) and tick "Add Python to PATH".
 
 ### Options
 
