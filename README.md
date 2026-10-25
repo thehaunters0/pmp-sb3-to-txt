@@ -86,6 +86,7 @@ The window stays open at the end so you can read any message. If it says Python 
 | `file` | The `.pmp` or `.sb3` to convert. If you leave it out, a file picker opens. |
 | `-o FILE`, `--output FILE` | Choose the output file name. Default: the project name with `.txt`, in the same folder. |
 | `--stdout` | Print the result in the terminal instead of writing a file. |
+| `--no-comments` | Leave out comments. By default they are included. |
 | `--fetch` | Download extensions that are only saved as a web address, so their blocks get readable names. See [Extensions](#extensions). Needs an internet connection. |
 | `-h`, `--help` | Show the built-in help. |
 
@@ -103,6 +104,7 @@ python pmp_to_txt.py "My Game.pmp" --fetch -o "My Game script.txt"
 | `<something>` | A true/false slot, like `<touching (edge)?>` |
 | `[something]` | A dropdown, or a variable or list name, like `[my list]` |
 | plain text | A typed-in value, like `Move 10 steps` |
+| `// text` | A comment. Comments on a block appear right under that block's line. |
 | `End` | Closes a block that holds other blocks (repeat, forever, if) |
 | Indentation | Blocks inside another block |
 
@@ -113,8 +115,24 @@ The file starts with the extensions the project uses. Then each sprite (and the 
 - Every sprite and the stage, all scripts, and custom blocks (definitions and calls, with their arguments).
 - All the standard Scratch blocks: motion, looks, sound, events, control, sensing, operators, variables and lists.
 - The pen extension.
+- Comments, both ones attached to blocks and free-floating workspace comments (see below).
 - PenguinMod's expandable `if / else if / else` block.
 - A few PenguinMod blocks: `not equal`, `mouse clicked?`, `amount of ... in list`, and the Operators Expansion `if ... is truthy` / `or if falsey` blocks.
+
+### Comments
+
+A comment attached to a block is printed on lines starting with `//`, directly under that block:
+
+```
+When green flag clicked
+// Start of the game
+Repeat 3
+// loops 3 times
+  Move 10 steps
+End
+```
+
+Free-floating workspace comments, and comments attached to a block nested inside another block's slot, are listed together at the end of that sprite's section under `--- Comments ---`. Use `--no-comments` to leave them all out.
 
 ### Extensions
 
@@ -127,7 +145,7 @@ Extension blocks keep the text they show in the editor, when the script can find
 ## Limitations
 
 - **Scratch 2 projects (`.sb2`) don't work.** Open them in Scratch 3 and save as `.sb3` first.
-- Block comments, costumes, sounds and sprite positions are not included. Only scripts, variables and lists are.
+- Costumes, sounds and sprite positions are not included. Only scripts, variables, lists and comments are.
 - Some blocks that Scratch or PenguinMod hide in the editor menus may print with their internal names instead of nicer text.
 - Scratch's built-in extensions other than pen (music, video sensing, text to speech, translate) print in the generic form until they're added to the table.
 - Blocks not in the built-in table show as `category: block name [INPUT=value]`. This is still readable, just not pretty.

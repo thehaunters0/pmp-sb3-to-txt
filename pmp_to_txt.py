@@ -277,10 +277,24 @@ def load_extensions(project, fetch=False):
 
 
 class Renderer:
-    def __init__(self, blocks, ext_templates=None, ext_c_blocks=None):
+    def __init__(self, blocks, ext_templates=None, ext_c_blocks=None,
+                 comments=None, show_comments=True):
         self.blocks = blocks
         self.ext = ext_templates or {}
         self.ext_c = ext_c_blocks or set()
+        self.comments = comments or {}
+        self.show_comments = show_comments
+        self.shown = set()          # ids of comments already printed next to their block
+
+    def add_comment(self, b, depth, out):
+        """Print the comment attached to block b (if any) right under its line."""
+        cid = b.get("comment")
+        c = self.comments.get(cid) if cid else None
+        if not c or not self.show_comments:
+            return
+        self.shown.add(cid)
+        for line in str(c.get("text", "")).splitlines() or [""]:
+            out.append("  " * depth + "// " + line)
 
     def tpl(self, op):
         return T.get(op) or self.ext.get(op)
@@ -435,6 +449,7 @@ class Renderer:
         keys = self.stack_keys(b)
         text = self.header(b, skip=keys)
         out.append(pad + (text[:1].upper() + text[1:]))
+        self.add_comment(b, depth, out)
 
         is_c = op in C_BLOCKS or op in self.ext_c or keys
         if not is_c:
@@ -464,6 +479,8 @@ class Renderer:
         for i, ck in enumerate(conds):
             head = ("If " if i == 0 else "Else if ") + self.input_text(inputs.get(ck)) + " then"
             out.append(pad + head)
+            if i == 0:
+                self.add_comment(b, depth, out)
             if i < len(bodies):
                 self.stack(self.sub(inputs.get(bodies[i])), depth + 1, out)
         if else_key:
@@ -488,7 +505,7 @@ def load_project(path):
         return json.load(f)
 
 
-def convert(project, fetch=False):
+def convert(project, fetch=False, comments=True):
     out = []
     templates, ext_c, lines = load_extensions(project, fetch)
     if lines:
@@ -507,7 +524,7 @@ def convert(project, fetch=False):
             out.append("Lists: " + ", ".join(map(str, ls)))
 
         blocks = target.get("blocks") or {}
-        r = Renderer(blocks, templates, ext_c)
+        r = Renderer(blocks, templates, ext_c, target.get("comments") or {}, comments)
         tops = [(k, b) for k, b in blocks.items()
                 if (isinstance(b, dict) and b.get("topLevel") and not b.get("shadow")) or isinstance(b, list)]
         tops.sort(key=lambda kb: (
@@ -519,6 +536,24 @@ def convert(project, fetch=False):
             out.append("")
             out.append("--- Script %d ---" % i)
             r.stack(bid, 0, out)
+        if comments:
+            cs = target.get("comments") or {}
+            free = sorted((c for c in cs.values() if isinstance(c, dict) and not c.get("blockId")),
+                          key=lambda c: (c.get("y", 0), c.get("x", 0)))
+            left = [(cid, c) for cid, c in cs.items()
+                    if isinstance(c, dict) and c.get("blockId") and cid not in r.shown]
+            if free or left:
+                out.append("")
+                out.append("--- Comments ---")
+                for c in free:
+                    out.extend("// " + l for l in (str(c.get("text", "")).splitlines() or [""]))
+                    out.append("")
+                for cid, c in left:
+                    blk = blocks.get(c.get("blockId"))
+                    where = r.header(blk) if isinstance(blk, dict) else "a block"
+                    out.append("(on: %s)" % where)
+                    out.extend("// " + l for l in (str(c.get("text", "")).splitlines() or [""]))
+                    out.append("")
         out.append("")
         out.append("")
     return "\n".join(out).rstrip() + "\n"
@@ -542,6 +577,8 @@ def main():
     ap.add_argument("file", nargs="?", help="the .pmp (or .sb3) file")
     ap.add_argument("-o", "--output", help="output .txt path")
     ap.add_argument("--stdout", action="store_true", help="print instead of writing a file")
+    ap.add_argument("--no-comments", action="store_true",
+                    help="leave out block and workspace comments")
     ap.add_argument("--fetch", action="store_true",
                     help="download extensions that are loaded from a URL so their blocks get readable names")
     a = ap.parse_args()
@@ -549,7 +586,7 @@ def main():
     path = a.file or pick_file()
     if not path:
         return
-    text = convert(load_project(path), a.fetch)
+    text = convert(load_project(path), a.fetch, not a.no_comments)
     if a.stdout:
         sys.stdout.write(text)
         return
